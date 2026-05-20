@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import * as ShogiModule from 'shogi.js';
 import confetti from 'canvas-confetti';
-import { Trophy, RotateCcw, ChevronLeft, ChevronRight, Info, AlertCircle, Upload, Plus, Loader2, Edit2, Check, ArrowUp, ArrowDown, Trash2, ListOrdered, Copy, ClipboardCopy, Download, Settings, X, Menu } from 'lucide-react';
+import { Trophy, RotateCcw, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Info, AlertCircle, Upload, Plus, Loader2, Edit2, Check, ArrowUp, ArrowDown, Trash2, ListOrdered, Copy, ClipboardCopy, Download, Settings, X, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GoogleGenAI } from '@google/genai';
 import { solveTsumeShogi, Move as SolverMove } from './lib/solver';
@@ -1462,8 +1462,20 @@ SFEN形式の例: 7nl/1R3sk2/5pppp/9/9/9/9/9/9 b GS 1
         </div>
       )}
 
-      <header className="w-full flex-none px-2 sm:px-4 py-2 flex items-center justify-center shadow-sm z-10 bg-white/50 backdrop-blur-sm border-b border-amber-900/10">
-        <div className="flex items-center gap-2 sm:gap-4">
+      <div className="w-full bg-amber-200 py-2 px-4 flex justify-center items-center border-b-2 border-amber-900/20 shrink-0 shadow-sm">
+        <span className="text-amber-950 font-black text-base sm:text-lg tracking-wide">©kiryoオリジナル詰将棋アプリ　２手詰③</span>
+      </div>
+      <header className="w-full flex-none px-2 sm:px-4 py-2 flex items-center justify-between shadow-sm z-10 bg-white/50 backdrop-blur-sm border-b border-amber-900/10">
+        <button
+          onClick={() => setCurrentProblemIndex(prev => Math.max(0, prev - 10))}
+          disabled={currentProblemIndex === 0}
+          className="p-1 sm:p-2 rounded-full hover:bg-amber-200 disabled:opacity-30 transition-colors"
+          title="10問戻る"
+        >
+          <ChevronsLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+
+        <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => setCurrentProblemIndex(prev => Math.max(0, prev - 1))}
             disabled={currentProblemIndex === 0}
@@ -1473,7 +1485,7 @@ SFEN形式の例: 7nl/1R3sk2/5pppp/9/9/9/9/9/9 b GS 1
             <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
           
-          <div className="flex justify-center items-center gap-2 sm:gap-4">
+          <div className="flex justify-center items-center gap-2 sm:gap-4 mx-1 sm:mx-2">
             <h2 className="text-base sm:text-lg md:text-xl font-bold text-amber-900 whitespace-nowrap">
               {currentProblem.title}
             </h2>
@@ -1491,10 +1503,19 @@ SFEN形式の例: 7nl/1R3sk2/5pppp/9/9/9/9/9/9 b GS 1
             <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
+
+        <button
+          onClick={() => setCurrentProblemIndex(prev => Math.min(problems.length - 1, prev + 10))}
+          disabled={currentProblemIndex === problems.length - 1}
+          className="p-1 sm:p-2 rounded-full hover:bg-amber-200 disabled:opacity-30 transition-colors"
+          title="10問進む"
+        >
+          <ChevronsRight className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
       </header>
 
       <main className="flex-1 w-full min-h-0 flex flex-col items-center p-2 relative overflow-hidden">
-        <div className="w-full max-w-lg flex flex-col gap-1 sm:gap-2 sm:gap-4 items-center justify-start h-full pb-16 pt-1 sm:pt-4 overflow-hidden touch-none">
+        <div className="w-full max-w-lg flex flex-col gap-1 sm:gap-2 sm:gap-4 items-center justify-start h-full pb-16 pt-1 sm:pt-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* Gote Hand (Top) */}
             <div className="w-full max-w-full sm:max-w-[480px] flex flex-row px-0 sm:px-2">
               <div className="w-full bg-amber-900/5 p-1 sm:p-3 rounded-lg sm:rounded-xl border border-amber-900/10 min-h-[40px] flex flex-row items-center gap-2 sm:gap-4">
@@ -1586,6 +1607,13 @@ SFEN形式の例: 7nl/1R3sk2/5pppp/9/9/9/9/9/9 b GS 1
               </button>
             </div>
 
+            {/* Comment Section below buttons */}
+            <div className="w-full max-w-[600px] px-2 sm:px-0 mt-2 text-center z-10 shrink-0 pb-8">
+              <p className="text-sm sm:text-base text-amber-950 whitespace-pre-wrap leading-relaxed font-bold bg-white/60 p-2 sm:p-3 rounded-xl border border-amber-900/10 shadow-sm">
+                {currentProblem.description || "解説はありません"}
+              </p>
+            </div>
+
           {/* Edit Palette */}
           {isEditMode && (
             <div className="w-full max-w-[600px] px-2 sm:px-0">
@@ -1645,15 +1673,9 @@ SFEN形式の例: 7nl/1R3sk2/5pppp/9/9/9/9/9/9 b GS 1
         </div>
       </main>
 
-      {/* Floating Comment and Toolbar Toggle */}
+      {/* Floating Toolbar Toggle */}
       <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 flex items-end gap-2 sm:gap-3 z-20 pointer-events-none">
         
-        <div className="bg-white/90 backdrop-blur p-3 sm:p-4 rounded-2xl shadow-lg border border-amber-900/10 max-w-[60vw] sm:max-w-[400px] max-h-[25vh] sm:max-h-[150px] overflow-y-auto pointer-events-auto">
-          <p className="text-xs sm:text-sm text-amber-900 whitespace-pre-wrap leading-relaxed">
-            {currentProblem.description || "解説はありません"}
-          </p>
-        </div>
-
         <button
           onClick={() => setIsToolbarOpen(true)}
           className="w-12 h-12 sm:w-14 sm:h-14 bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-amber-700 hover:scale-105 active:scale-95 transition-all flex-shrink-0 pointer-events-auto"
@@ -1877,8 +1899,8 @@ SFEN形式の例: 7nl/1R3sk2/5pppp/9/9/9/9/9/9 b GS 1
                   )}
                 </div>
 
-                <footer className="text-center text-amber-800/40 text-xs py-4 pb-8">
-                  © 2026 {appTitle} • 伝統的な将棋のパズル
+                <footer className="text-center text-amber-900 font-bold text-sm py-4 pb-8">
+                  ©kiryoオリジナル詰将棋アプリ　２手詰③
                 </footer>
               </div>
             </motion.div>
@@ -1937,10 +1959,6 @@ SFEN形式の例: 7nl/1R3sk2/5pppp/9/9/9/9/9/9 b GS 1
           </motion.div>
         )}
       </AnimatePresence>
-
-      <footer className="mt-12 text-amber-800/40 text-xs">
-        © 2026 {appTitle} • 伝統的な将棋のパズル
-      </footer>
     </div>
   );
 }
